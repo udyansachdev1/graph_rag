@@ -5,10 +5,8 @@ This repository implements a small Graph-based RAG (Retrieval-Augmented Generati
 This fork has been updated to operate in Gemini-only mode (no local NER fallback). It also supports an incremental, cumulative knowledge graph: repeated runs will merge newly-extracted entities/relationships into a single cumulative `kg.pkl` file using simple normalized-name + substring-based deduplication.
 
 ---
-
-![alt text](imgs/ss1.png)
-![alt text](imgs/ss2.png)
-
+![alt text](imgs/ss4.png)
+![alt text](imgs/ss3.png)
 
 
 ## Highlights / Key behaviors
@@ -20,6 +18,10 @@ This fork has been updated to operate in Gemini-only mode (no local NER fallback
 - Persistence: the cumulative graph is stored in `kg.pkl` as a pickled dict containing a NetworkX node-link graph plus `entities`, `relationships`, and `text_chunks`.
 
 ---
+
+![alt text](imgs/ss1.png)
+![alt text](imgs/ss2.png)
+
 
 ## File layout
 
