@@ -102,15 +102,13 @@ This is a lightweight, heuristic merge designed for small- to medium-sized datas
 
 ---
 
-## Recommended next steps (if you want me to implement any)
+## Recommended next steps
 
 1. Add fuzzy matching with `rapidfuzz` or embeddings-based matching to improve deduplication.
 2. Introduce canonical stable IDs for entities (UUIDs) and persist entities by ID rather than by display name.
 3. Replace pickle with JSON + versioned schema, or switch to SQLite/graph DB for safe incremental updates.
 4. Add a validation tool that checks for orphan relationships and reports merge statistics per run.
 5. Add batching / caching for Gemini calls to lower latency and cost.
-
-If you tell me which of these you want next, I can implement it and add tests.
 
 ---
 
