@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knowledge Graph Visualizer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .file-label {
+            background: linear-gradient(45deg, #48CAE4, #0077B6);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(72, 202, 228, 0.3);
+        }
+        
+        .file-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(72, 202, 228, 0.4);
+        }
+        
+        .info-panel {
+            background: #f8f9ff;
+            border: 2px solid #e6e8ff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-left: 4px solid #667eea;
+        }
+        
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        #graph {
+            width: 100%;
+            height: 600px;
+            border: 2px solid #e6e8ff;
+            border-radius: 12px;
+            background: white;
+            margin-top: 20px;
+        }
+        
+        .node {
+            cursor: pointer;
+            stroke-width: 2px;
+            stroke: #fff;
+            transition: all 0.3s ease;
+        }
+        
+        .node:hover {
+            stroke-width: 3px;
+            stroke: #333;
+        }
+        
+        .link {
+            stroke: #999;
+            stroke-opacity: 0.6;
+            stroke-width: 2px;
+        }
+        
+        .node-label {
+            fill: #333;
+            font-size: 12px;
+            font-weight: 600;
+            text-anchor: middle;
+            pointer-events: none;
+        }
+        
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            max-width: 300px;
+            pointer-events: none;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .legend {
+            background: #f8f9ff;
+            border: 2px solid #e6e8ff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .legend-item {
+            display: inline-flex;
+            align-items: center;
+            margin: 5px 15px 5px 0;
+            font-size: 14px;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            margin-right: 8px;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+            background: #fafafa;
+            transition: all 0.3s ease;
+        }
+        
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        
+        .upload-text {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .search-box {
+            background: white;
+            border: 2px solid #e6e8ff;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 14px;
+            width: 200px;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .filter-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .highlighted {
+            stroke: #ff6b6b !important;
+            stroke-width: 4px !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🕸️ Knowledge Graph Visualizer</h1>
+        
+        <div class="upload-area">
+            <div class="upload-text">
+                📁 To visualize your graph, you'll need to convert your PKL file to JSON first
+            </div>
+            <div style="color: #888; font-size: 14px;">
+                Run the Python script to export your PKL file to JSON format, then upload it here
+            </div>
+        </div>
+        
+        <div class="controls">
+            <input type="file" id="fileInput" class="file-input" accept=".json">
+            <label for="fileInput" class="file-label">📁 Upload JSON Graph</label>
+            <button class="btn" onclick="centerGraph()">🎯 Center Graph</button>
+            <button class="btn" onclick="resetZoom()">🔍 Reset Zoom</button>
+            <button class="btn" onclick="generateSampleGraph()">🎲 Sample Graph</button>
+            <button class="btn" onclick="exportToPNG()">📸 Export PNG</button>
+        </div>
+        
+        <div class="filter-controls">
+            <input type="text" id="searchBox" class="search-box" placeholder="🔍 Search entities..." onkeyup="searchEntities()">
+            <select id="typeFilter" class="search-box" onchange="filterByType()" style="width: auto; min-width: 150px;">
+                <option value="">All Types</option>
+            </select>
+            <button class="btn" onclick="clearFilters()" style="padding: 8px 16px; font-size: 12px;">Clear Filters</button>
+        </div>
+        
+        <div class="info-panel">
+            <h3 style="margin-top: 0; color: #333;">📊 Graph Statistics</h3>
+            <div class="info-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="nodeCount">0</div>
+                    <div class="stat-label">Entities</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="linkCount">0</div>
+                    <div class="stat-label">Relationships</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="typeCount">0</div>
+                    <div class="stat-label">Entity Types</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="avgConnections">0</div>
+                    <div class="stat-label">Avg Connections</div>
+                </div>
+            </div>
+        </div>
+        
+        <svg id="graph"></svg>
+        
+        <div class="legend" id="legend">
+            <h3 style="margin-top: 0; color: #333;">🏷️ Entity Types</h3>
+            <div id="legendItems"></div>
+        </div>
+        
+        <div class="tooltip" id="tooltip"></div>
+    </div>
+
+    <script>
+        let simulation, svg, g;
+        let nodes = [], links = [];
+        let allNodes = [], allLinks = [];
+        let colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+        
+        function initializeGraph() {
+            svg = d3.select("#graph");
+            const width = parseInt(svg.style("width"));
+            const height = parseInt(svg.style("height"));
+
+            svg.selectAll("*").remove();
+
+            g = svg.append("g");
+
+            // Add zoom behavior
+            const zoom = d3.zoom()
+                .scaleExtent([0.1, 4])
+                .on("zoom", (event) => {
+                    g.attr("transform", event.transform);
+                });
+
+            svg.call(zoom);
+
+            // Move svg click event handler here so g is always defined
+            svg.on("click", function(event) {
+                if (event.target === this) {
+                    g.selectAll(".node").classed("highlighted", false);
+                    g.selectAll(".link").style("stroke", "#999").style("stroke-opacity", 0.6);
+                }
+            });
+
+            simulation = d3.forceSimulation()
+                .force("link", d3.forceLink().id(d => d.id).distance(100))
+                .force("charge", d3.forceManyBody().strength(-400))
+                .force("center", d3.forceCenter(width / 2, height / 2))
+                .force("collision", d3.forceCollide().radius(35));
+        }
+        
+        function renderGraph(graphData) {
+            if (!graphData || !graphData.entities) {
+                console.error("Invalid graph data");
+                return;
+            }
+            
+            // Prepare nodes and links
+            allNodes = Object.keys(graphData.entities).map(name => ({
+                id: name,
+                type: graphData.entities[name].type || 'Unknown',
+                description: graphData.entities[name].description || 'No description'
+            }));
+            
+            allLinks = (graphData.relationships || []).map(rel => ({
+                source: rel.source,
+                target: rel.target,
+                relationship: rel.relationship || 'related',
+                description: rel.description || 'No description'
+            }));
+            
+            // Filter valid links
+            const nodeIds = new Set(allNodes.map(n => n.id));
+            allLinks = allLinks.filter(l => nodeIds.has(l.source) && nodeIds.has(l.target));
+            
+            // Set current nodes and links to all data initially
+            nodes = [...allNodes];
+            links = [...allLinks];
+            
+            updateTypeFilter();
+            updateGraph();
+        }
+        
+        function updateGraph() {
+            updateStatistics();
+            updateLegend();
+            
+            // Clear previous graph
+            g.selectAll(".link").remove();
+            g.selectAll(".node").remove();
+            g.selectAll(".node-label").remove();
+            
+            // Add links
+            const link = g.selectAll(".link")
+                .data(links)
+                .enter().append("line")
+                .attr("class", "link")
+                .attr("stroke-width", d => Math.min(4, Math.max(1, (d.confidence || 0.5) * 4)));
+            
+            // Add nodes
+            const node = g.selectAll(".node")
+                .data(nodes)
+                .enter().append("circle")
+                .attr("class", "node")
+                .attr("r", d => Math.max(10, Math.min(25, nodeConnections(d.id) * 4 + 10)))
+                .style("fill", d => colorScale(d.type))
+                .on("mouseover", showTooltip)
+                .on("mouseout", hideTooltip)
+                .on("click", (event, d) => {
+                    event.stopPropagation();
+                    highlightConnectedNodes(d);
+                })
+                .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended));
+            
+            // Add labels
+            const label = g.selectAll(".node-label")
+                .data(nodes)
+                .enter().append("text")
+                .attr("class", "node-label")
+                .text(d => d.id.length > 18 ? d.id.substring(0, 15) + "..." : d.id)
+                .style("font-size", d => Math.max(10, Math.min(14, nodeConnections(d.id) + 10)) + "px");
+            
+            // Update simulation
+            simulation.nodes(nodes);
+            simulation.force("link").links(links);
+            simulation.restart();
+            
+            simulation.on("tick", () => {
+                link
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+                
+                node
+                    .attr("cx", d => d.x)
+                    .attr("cy", d => d.y);
+                
+                label
+                    .attr("x", d => d.x)
+                    .attr("y", d => d.y + 30);
+            });
+        }
+        
+        function nodeConnections(nodeId) {
+            return links.filter(l => 
+                (l.source.id === nodeId || l.source === nodeId) || 
+                (l.target.id === nodeId || l.target === nodeId)
+            ).length;
+        }
+        
+        function updateStatistics() {
+            const entityTypes = [...new Set(nodes.map(n => n.type))];
+            const totalConnections = links.length * 2;
+            const avgConnections = nodes.length > 0 ? (totalConnections / nodes.length).toFixed(1) : 0;
+            
+            document.getElementById("nodeCount").textContent = nodes.length;
+            document.getElementById("linkCount").textContent = links.length;
+            document.getElementById("typeCount").textContent = entityTypes.length;
+            document.getElementById("avgConnections").textContent = avgConnections;
+        }
+        
+        function updateLegend() {
+            const entityTypes = [...new Set(nodes.map(n => n.type))];
+            const legendItems = document.getElementById("legendItems");
+            legendItems.innerHTML = "";
+            
+            entityTypes.forEach(type => {
+                const count = nodes.filter(n => n.type === type).length;
+                const item = document.createElement("div");
+                item.className = "legend-item";
+                item.style.cursor = "pointer";
+                item.onclick = () => filterByType(type);
+                item.innerHTML = `
+                    <div class="legend-color" style="background-color: ${colorScale(type)}"></div>
+                    <span>${type} (${count})</span>
+                `;
+                legendItems.appendChild(item);
+            });
+        }
+        
+        function updateTypeFilter() {
+            const entityTypes = [...new Set(allNodes.map(n => n.type))].sort();
+            const typeFilter = document.getElementById("typeFilter");
+            
+            // Clear existing options except the first one
+            typeFilter.innerHTML = '<option value="">All Types</option>';
+            
+            entityTypes.forEach(type => {
+                const option = document.createElement("option");
+                option.value = type;
+                option.textContent = type;
+                typeFilter.appendChild(option);
+            });
+        }
+        
+        function showTooltip(event, d) {
+            const tooltip = d3.select("#tooltip");
+            const connections = nodeConnections(d.id);
+            const connectedEntities = getConnectedEntities(d.id);
+            
+            let tooltipContent = `
+                <strong>${d.id}</strong><br>
+                <strong>Type:</strong> ${d.type}<br>
+                <strong>Connections:</strong> ${connections}<br>
+                <strong>Description:</strong> ${d.description.substring(0, 150)}${d.description.length > 150 ? '...' : ''}
+            `;
+            
+            if (connectedEntities.length > 0) {
+                tooltipContent += `<br><strong>Connected to:</strong> ${connectedEntities.slice(0, 5).join(', ')}`;
+                if (connectedEntities.length > 5) {
+                    tooltipContent += ` and ${connectedEntities.length - 5} more...`;
+                }
+            }
+            
+            tooltip.html(tooltipContent)
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 10) + "px")
+                .style("opacity", 1);
+        }
+        
+        function hideTooltip() {
+            d3.select("#tooltip").style("opacity", 0);
+        }
+        
+        function getConnectedEntities(nodeId) {
+            return links
+                .filter(l => 
+                    (l.source.id === nodeId || l.source === nodeId) || 
+                    (l.target.id === nodeId || l.target === nodeId)
+                )
+                .map(l => {
+                    const sourceId = l.source.id || l.source;
+                    const targetId = l.target.id || l.target;
+                    return sourceId === nodeId ? targetId : sourceId;
+                });
+        }
+        
+        function highlightConnectedNodes(centerNode) {
+            // Remove previous highlights
+            g.selectAll(".node").classed("highlighted", false);
+            g.selectAll(".link").style("stroke", "#999").style("stroke-opacity", 0.6);
+            
+            // Get connected node IDs
+            const connectedIds = new Set([centerNode.id]);
+            links.forEach(l => {
+                const sourceId = l.source.id || l.source;
+                const targetId = l.target.id || l.target;
+                if (sourceId === centerNode.id || targetId === centerNode.id) {
+                    connectedIds.add(sourceId);
+                    connectedIds.add(targetId);
+                }
+            });
+            
+            // Highlight connected nodes
+            g.selectAll(".node")
+                .classed("highlighted", d => connectedIds.has(d.id));
+            
+            // Highlight connected links
+            g.selectAll(".link")
+                .style("stroke", l => {
+                    const sourceId = l.source.id || l.source;
+                    const targetId = l.target.id || l.target;
+                    return (sourceId === centerNode.id || targetId === centerNode.id) ? "#ff6b6b" : "#999";
+                })
+                .style("stroke-opacity", l => {
+                    const sourceId = l.source.id || l.source;
+                    const targetId = l.target.id || l.target;
+                    return (sourceId === centerNode.id || targetId === centerNode.id) ? 1 : 0.3;
+                });
+        }
+        
+        function searchEntities() {
+            const searchTerm = document.getElementById("searchBox").value.toLowerCase();
+            
+            if (searchTerm === '') {
+                clearFilters();
+                return;
+            }
+            
+            // Filter nodes based on search term
+            const filteredNodes = allNodes.filter(n => 
+                n.id.toLowerCase().includes(searchTerm) ||
+                n.type.toLowerCase().includes(searchTerm) ||
+                n.description.toLowerCase().includes(searchTerm)
+            );
+            
+            // Filter links to only include links between filtered nodes
+            const filteredNodeIds = new Set(filteredNodes.map(n => n.id));
+            const filteredLinks = allLinks.filter(l =>
+                filteredNodeIds.has(l.source) && filteredNodeIds.has(l.target)
+            );
+            
+            nodes = filteredNodes;
+            links = filteredLinks;
+            
+            updateGraph();
+        }
+        
+        function filterByType(selectedType = null) {
+            const typeFilter = document.getElementById("typeFilter");
+            const typeToFilter = selectedType || typeFilter.value;
+            
+            if (typeToFilter === '') {
+                nodes = [...allNodes];
+                links = [...allLinks];
+            } else {
+                // Filter nodes by type
+                const filteredNodes = allNodes.filter(n => n.type === typeToFilter);
+                
+                // Filter links to only include links between filtered nodes
+                const filteredNodeIds = new Set(filteredNodes.map(n => n.id));
+                const filteredLinks = allLinks.filter(l =>
+                    filteredNodeIds.has(l.source) && filteredNodeIds.has(l.target)
+                );
+                
+                nodes = filteredNodes;
+                links = filteredLinks;
+            }
+            
+            if (selectedType) {
+                typeFilter.value = typeToFilter;
+            }
+            
+            updateGraph();
+        }
+        
+        function clearFilters() {
+            document.getElementById("searchBox").value = '';
+            document.getElementById("typeFilter").value = '';
+            
+            nodes = [...allNodes];
+            links = [...allLinks];
+            
+            // Remove highlights
+            g.selectAll(".node").classed("highlighted", false);
+            g.selectAll(".link").style("stroke", "#999").style("stroke-opacity", 0.6);
+            
+            updateGraph();
+        }
+        
+        function dragstarted(event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+        
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+        
+        function dragended(event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+        
+        function centerGraph() {
+            const svg = d3.select("#graph");
+            const width = parseInt(svg.style("width"));
+            const height = parseInt(svg.style("height"));
+            
+            svg.transition().duration(750).call(
+                d3.zoom().transform,
+                d3.zoomIdentity.translate(width / 2, height / 2).scale(1)
+            );
+        }
+        
+        function resetZoom() {
+            const svg = d3.select("#graph");
+            svg.transition().duration(750).call(
+                d3.zoom().transform,
+                d3.zoomIdentity
+            );
+        }
+        
+        function exportToPNG() {
+            const svg = document.getElementById("graph");
+            const svgData = new XMLSerializer().serializeToString(svg);
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            
+            const img = new Image();
+            img.onload = function() {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.fillStyle = "white";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+                
+                const link = document.createElement("a");
+                link.download = "knowledge_graph.png";
+                link.href = canvas.toDataURL();
+                link.click();
+            };
+            
+            const svgBlob = new Blob([svgData], {type: "image/svg+xml;charset=utf-8"});
+            const url = URL.createObjectURL(svgBlob);
+            img.src = url;
+        }
+        
+        function generateSampleGraph() {
+            const sampleData = {
+                entities: {
+                    "Artificial Intelligence": {
+                        type: "Technology",
+                        description: "The simulation of human intelligence in machines that are programmed to think and learn"
+                    },
+                    "Machine Learning": {
+                        type: "Technology", 
+                        description: "A subset of AI that enables machines to learn and improve from experience without being explicitly programmed"
+                    },
+                    "Neural Networks": {
+                        type: "Algorithm",
+                        description: "Computing systems inspired by biological neural networks that constitute animal brains"
+                    },
+                    "Deep Learning": {
+                        type: "Algorithm",
+                        description: "Machine learning methods based on artificial neural networks with representation learning"
+                    },
+                    "Python": {
+                        type: "Programming Language",
+                        description: "High-level, interpreted programming language with dynamic semantics"
+                    },
+                    "TensorFlow": {
+                        type: "Framework",
+                        description: "Open source machine learning framework developed by Google"
+                    },
+                    "PyTorch": {
+                        type: "Framework", 
+                        description: "Machine learning library based on the Torch library, developed by Facebook"
+                    },
+                    "Data Science": {
+                        type: "Field",
+                        description: "Interdisciplinary field that uses scientific methods to extract knowledge from data"
+                    },
+                    "Natural Language Processing": {
+                        type: "Technology",
+                        description: "Branch of AI that helps computers understand, interpret and manipulate human language"
+                    },
+                    "Computer Vision": {
+                        type: "Technology",
+                        description: "Field of AI that trains computers to interpret and understand the visual world"
+                    },
+                    "Big Data": {
+                        type: "Concept",
+                        description: "Large volumes of data that can be analyzed computationally to reveal patterns and trends"
+                    },
+                    "Cloud Computing": {
+                        type: "Infrastructure",
+                        description: "Delivery of computing services including servers, storage, and applications over the internet"
+                    }
+                },
+                relationships: [
+                    {source: "Artificial Intelligence", target: "Machine Learning", relationship: "includes", description: "AI includes ML as a major subset"},
+                    {source: "Machine Learning", target: "Neural Networks", relationship: "uses", description: "ML often uses neural networks as algorithms"},
+                    {source: "Neural Networks", target: "Deep Learning", relationship: "enables", description: "Deep neural networks enable deep learning"},
+                    {source: "Python", target: "Machine Learning", relationship: "used_for", description: "Python is widely used for ML development"},
+                    {source: "TensorFlow", target: "Deep Learning", relationship: "implements", description: "TensorFlow implements deep learning algorithms"},
+                    {source: "PyTorch", target: "Deep Learning", relationship: "implements", description: "PyTorch implements deep learning algorithms"},
+                    {source: "Data Science", target: "Machine Learning", relationship: "utilizes", description: "Data science utilizes ML techniques for analysis"},
+                    {source: "Artificial Intelligence", target: "Natural Language Processing", relationship: "includes", description: "NLP is a branch of AI"},
+                    {source: "Artificial Intelligence", target: "Computer Vision", relationship: "includes", description: "Computer vision is a branch of AI"},
+                    {source: "Data Science", target: "Big Data", relationship: "analyzes", description: "Data science analyzes big data"},
+                    {source: "Machine Learning", target: "Big Data", relationship: "processes", description: "ML algorithms process big data"},
+                    {source: "Cloud Computing", target: "Machine Learning", relationship: "enables", description: "Cloud computing enables scalable ML"},
+                    {source: "TensorFlow", target: "Cloud Computing", relationship: "runs_on", description: "TensorFlow can run on cloud infrastructure"},
+                    {source: "PyTorch", target: "Cloud Computing", relationship: "runs_on", description: "PyTorch can run on cloud infrastructure"}
+                ]
+            };
+            
+            renderGraph(sampleData);
+        }
+        
+        // File upload handling
+        document.getElementById("fileInput").addEventListener("change", function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const graphData = JSON.parse(e.target.result);
+                        renderGraph(graphData);
+                        
+                        // Show success message
+                        const uploadArea = document.querySelector('.upload-area');
+                        const originalContent = uploadArea.innerHTML;
+                        uploadArea.innerHTML = `
+                            <div class="upload-text" style="color: #28a745;">
+                                ✅ Graph loaded successfully!
+                            </div>
+                            <div style="color: #888; font-size: 14px;">
+                                Displaying ${Object.keys(graphData.entities).length} entities and ${graphData.relationships.length} relationships
+                            </div>
+                        `;
+                        
+                        // Restore original content after 3 seconds
+                        setTimeout(() => {
+                            uploadArea.innerHTML = originalContent;
+                        }, 3000);
+                        
+                    } catch (error) {
+                        alert("Error parsing JSON file: " + error.message);
+                        console.error("JSON parsing error:", error);
+                    }
+                };
+                reader.readAsText(file);
+            }
+        });
+        
+        // ...existing code...
+        
+        // Initialize the graph
+        initializeGraph();
+        
+        // Generate sample graph on load
+        generateSampleGraph();
+    </script>
+</body>

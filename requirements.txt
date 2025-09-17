@@ -1,0 +1,15 @@
+# Core runtime dependencies for graph_rag
+google-generativeai
+networkx>=3.0
+pydantic
+PyPDF2
+numpy
+
+# The project imports `langgraph` (StateGraph); if this is a local module you may not need
+# to install it via pip. If it's available via pip, install it here. Otherwise ensure the
+# package is on PYTHONPATH.
+langgraph
+
+# Optional but useful during development / future features
+rapidfuzz    # fuzzy matching (optional)
+sentence-transformers  # if you plan to add embedding-based dedupe

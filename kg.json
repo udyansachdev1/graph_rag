@@ -1,0 +1,263 @@
+{
+  "entities": {
+    "Harry Potter": {
+      "type": "Person",
+      "description": "The main protagonist; a boy who survived Voldemort's attack. (mentions: 4)"
+    },
+    "J.K. Rowling": {
+      "type": "Person",
+      "description": "Author of the book. (mentions: 1)"
+    },
+    "Mr. and Mrs. Dursley": {
+      "type": "Person",
+      "description": "Harry Potter's aunt and uncle; they are Muggles. (mentions: 2)"
+    },
+    "Grunnings": {
+      "type": "Organization",
+      "description": "The firm where Mr. Dursley works; it makes drills. (mentions: 2)"
+    },
+    "Dudley Dursley": {
+      "type": "Person",
+      "description": "Harry's cousin. (mentions: 0)"
+    },
+    "Lily and James Potter": {
+      "type": "Person",
+      "description": "Harry's parents; they were killed by Voldemort. (mentions: 1)"
+    },
+    "Voldemort": {
+      "type": "Person",
+      "description": "The antagonist; a powerful dark wizard. (mentions: 6)"
+    },
+    "Albus Dumbledore": {
+      "type": "Person",
+      "description": "A powerful wizard; he leaves Harry with the Dursleys. (mentions: 2)"
+    },
+    "Professor McGonagall": {
+      "type": "Person",
+      "description": "A wizard; she assists Dumbledore in placing Harry with the Dursleys. (mentions: 21)"
+    },
+    "Hagrid": {
+      "type": "Person",
+      "description": "A half-giant; he brings Harry to the Dursleys. (mentions: 14)"
+    },
+    "Sirius Black": {
+      "type": "Person",
+      "description": "Lends Hagrid his motorcycle. (mentions: 1)"
+    },
+    "Privet Drive": {
+      "type": "Location",
+      "description": "The street where the Dursleys live. (mentions: 8)"
+    },
+    "Godric's Hollow": {
+      "type": "Location",
+      "description": "Where Voldemort attacked the Potters. (mentions: 0)"
+    },
+    "Kent, Yorkshire, Dundee": {
+      "type": "Location",
+      "description": "Locations where shooting stars were seen. (mentions: 0)"
+    },
+    "London Underground": {
+      "type": "Location",
+      "description": "Referenced in Dumbledore's scar description. (mentions: 1)"
+    },
+    "Sorcerer's Stone": {
+      "type": "Object",
+      "description": "Title of the book. (mentions: 0)"
+    },
+    "drills": {
+      "type": "Object",
+      "description": "Manufactured by Grunnings. (mentions: 4)"
+    },
+    "owl": {
+      "type": "Animal",
+      "description": "Many owls were seen flying during the day. (mentions: 18)"
+    },
+    "cat": {
+      "type": "Animal",
+      "description": "A tabby cat that appears to be Professor McGonagall in disguise. (mentions: 23)"
+    },
+    "motorcycle": {
+      "type": "Object",
+      "description": "A flying motorcycle used by Hagrid. (mentions: 5)"
+    },
+    "Put-Outer": {
+      "type": "Object",
+      "description": "A device used by Dumbledore to extinguish street lamps. (mentions: 2)"
+    },
+    "lemon drop": {
+      "type": "Object",
+      "description": "A type of Muggle sweet. (mentions: 5)"
+    },
+    "scar": {
+      "type": "Object",
+      "description": "Lightning bolt-shaped scar on Harry's forehead. (mentions: 2)"
+    },
+    "letter": {
+      "type": "Object",
+      "description": "A letter left with Harry by Dumbledore. (mentions: 5)"
+    }
+  },
+  "relationships": [
+    {
+      "source": "Harry Potter",
+      "target": "J.K. Rowling",
+      "relationship": "author_of",
+      "description": "J.K. Rowling wrote the book about Harry Potter.",
+      "confidence": 1.0
+    },
+    {
+      "source": "Harry Potter",
+      "target": "Sorcerer's Stone",
+      "relationship": "protagonist_of",
+      "description": "Harry Potter is the main character of Sorcerer's Stone.",
+      "confidence": 1.0
+    },
+    {
+      "source": "Harry Potter",
+      "target": "Mr. and Mrs. Dursley",
+      "relationship": "lives_with",
+      "description": "Harry Potter lives with his aunt and uncle, the Dursleys.",
+      "confidence": 1.0
+    },
+    {
+      "source": "Mr. and Mrs. Dursley",
+      "target": "Privet Drive",
+      "relationship": "lives_at",
+      "description": "The Dursleys live at number four, Privet Drive.",
+      "confidence": 1.0
+    },
+    {
+      "source": "Mr. Dursley",
+      "target": "Grunnings",
+      "relationship": "works_at",
+      "description": "Mr. Dursley is the director of Grunnings.",
+      "confidence": 1.0
+    },
+    {
+      "source": "Grunnings",
+      "target": "drills",
+      "relationship": "manufactures",
+      "description": "Grunnings makes drills.",
+      "confidence": 1.0
+    },
+    {
+      "source": "Mr. and Mrs. Dursley",
+      "target": "Dudley Dursley",
+      "relationship": "parents_of",
+      "description": "The Dursleys are Dudley's parents.",
+      "confidence": 1.0
+    },
+    {
+      "source": "Mr. and Mrs. Dursley",
+      "target": "Lily and James Potter",
+      "relationship": "sister_and_brother-in-law_of",
+      "description": "Lily and James Potter are Mrs. Dursley's sister and brother-in-law.",
+      "confidence": 1.0
+    },
+    {
+      "source": "Lily and James Potter",
+      "target": "Harry Potter",
+      "relationship": "parents_of",
+      "description": "Lily and James Potter are Harry's parents.",
+      "confidence": 1.0
+    },
+    {
+      "source": "Voldemort",
+      "target": "Lily and James Potter",
+      "relationship": "killed",
+      "description": "Voldemort killed Lily and James Potter.",
+      "confidence": 1.0
+    },
+    {
+      "source": "Voldemort",
+      "target": "Harry Potter",
+      "relationship": "attempted_to_kill",
+      "description": "Voldemort attempted to kill Harry Potter.",
+      "confidence": 1.0
+    },
+    {
+      "source": "Harry Potter",
+      "target": "scar",
+      "relationship": "has",
+      "description": "Harry Potter has a lightning-bolt shaped scar.",
+      "confidence": 1.0
+    },
+    {
+      "source": "Albus Dumbledore",
+      "target": "Harry Potter",
+      "relationship": "delivers",
+      "description": "Dumbledore delivers Harry to his aunt and uncle.",
+      "confidence": 1.0
+    },
+    {
+      "source": "Albus Dumbledore",
+      "target": "letter",
+      "relationship": "writes",
+      "description": "Dumbledore writes a letter for Harry's aunt and uncle.",
+      "confidence": 1.0
+    },
+    {
+      "source": "Professor McGonagall",
+      "target": "cat",
+      "relationship": "transformed_into",
+      "description": "Professor McGonagall was transformed into a cat.",
+      "confidence": 1.0
+    },
+    {
+      "source": "Hagrid",
+      "target": "Harry Potter",
+      "relationship": "transports",
+      "description": "Hagrid brings Harry to his aunt and uncle.",
+      "confidence": 1.0
+    },
+    {
+      "source": "Hagrid",
+      "target": "motorcycle",
+      "relationship": "uses",
+      "description": "Hagrid uses a flying motorcycle.",
+      "confidence": 1.0
+    },
+    {
+      "source": "Sirius Black",
+      "target": "motorcycle",
+      "relationship": "owns",
+      "description": "Sirius Black lent Hagrid the motorcycle.",
+      "confidence": 1.0
+    },
+    {
+      "source": "Albus Dumbledore",
+      "target": "Put-Outer",
+      "relationship": "uses",
+      "description": "Dumbledore uses the Put-Outer to turn off street lights.",
+      "confidence": 1.0
+    },
+    {
+      "source": "Voldemort",
+      "target": "Godric's Hollow",
+      "relationship": "attacked_at",
+      "description": "Voldemort attacked the Potters in Godric's Hollow.",
+      "confidence": 1.0
+    },
+    {
+      "source": "owl",
+      "target": "Kent, Yorkshire, Dundee",
+      "relationship": "seen_in",
+      "description": "Owls were seen flying in Kent, Yorkshire, and Dundee.",
+      "confidence": 1.0
+    },
+    {
+      "source": "Albus Dumbledore",
+      "target": "lemon drop",
+      "relationship": "enjoys",
+      "description": "Dumbledore likes lemon drops.",
+      "confidence": 1.0
+    },
+    {
+      "source": "Albus Dumbledore",
+      "target": "London Underground",
+      "relationship": "scar_map_of",
+      "description": "Dumbledore's scar resembles the London Underground.",
+      "confidence": 1.0
+    }
+  ]
+}
