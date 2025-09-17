@@ -1,6 +1,6 @@
 # Graph RAG
 
-This repository implements a small Graph-based RAG (Retrieval-Augmented Generation) pipeline that extracts text from PDFs, uses Google Gemini to extract entities and infer relationships, builds a NetworkX knowledge graph, and answers natural-language queries using the graph and document context.
+This repository implements a  Graph-based RAG (Retrieval-Augmented Generation) pipeline that extracts text from PDFs, uses Google Gemini to extract entities and infer relationships, builds a NetworkX knowledge graph, and answers natural-language queries using the graph and document context.
 
 This fork has been updated to operate in Gemini-only mode (no local NER fallback). It also supports an incremental, cumulative knowledge graph: repeated runs will merge newly-extracted entities/relationships into a single cumulative `kg.pkl` file using simple normalized-name + substring-based deduplication.
 
