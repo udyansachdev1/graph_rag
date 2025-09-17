@@ -6,8 +6,8 @@ This fork has been updated to operate in Gemini-only mode (no local NER fallback
 
 ---
 
-![alt text](http://url/to/img.png)
-![alt text](http://url/to/img.png)
+![alt text](imgs/ss1.png)
+![alt text](imgs/ss2.png)
 
 
 
